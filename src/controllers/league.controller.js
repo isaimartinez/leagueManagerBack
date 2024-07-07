@@ -1,4 +1,4 @@
-import League from "../models/League.js";
+import League from "../models/league.js";
 
 // Create a new league
 export const createLeague = async (req, res) => {

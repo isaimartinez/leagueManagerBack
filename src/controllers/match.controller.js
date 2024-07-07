@@ -1,4 +1,4 @@
-import Match from "../models/match";
+import Match from "../models/match.js";
 
 // Get all matches
 export const getMatches = async (req, res) => {

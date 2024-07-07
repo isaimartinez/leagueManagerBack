@@ -5,7 +5,6 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 
 import swaggerDocs from "./swagger.js";
-import groupRoutes from "./src/routes/group.router.js";
 import leagueRoutes from "./src/routes/league.router.js";
 import matchRoutes from "./src/routes/match.router.js";
 import playerRoutes from "./src/routes/player.router.js";
@@ -22,7 +21,6 @@ app.use(cors());
 swaggerDocs(app);
 
 app.use("/api/auth", userRoutes);
-app.use("/api", groupRoutes);
 app.use("/api", leagueRoutes);
 app.use("/api", matchRoutes);
 app.use("/api", playerRoutes);
