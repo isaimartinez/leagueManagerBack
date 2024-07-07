@@ -1,9 +1,16 @@
-import Match from '../models/match';
+import Match from "../models/match";
 
 // Get all matches
 export const getMatches = async (req, res) => {
   try {
-    const matches = await Match.find().populate('local').populate('visit');
+    const matches = await Match.find()
+      .populate("local")
+      .populate("visit")
+      .populate("league")
+      .populate("visitGoals.player")
+      .populate("visitGoals.team")
+      .populate("localGoals.player")
+      .populate("localGoals.team");
     res.status(200).json(matches);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -14,9 +21,16 @@ export const getMatches = async (req, res) => {
 export const getMatchById = async (req, res) => {
   const { id } = req.params;
   try {
-    const match = await Match.findById(id).populate('local').populate('visit');
+    const match = await Match.findById(id)
+      .populate("local")
+      .populate("visit")
+      .populate("league")
+      .populate("visitGoals.player")
+      .populate("visitGoals.team")
+      .populate("localGoals.player")
+      .populate("localGoals.team");
     if (!match) {
-      return res.status(404).json({ message: 'Match not found' });
+      return res.status(404).json({ message: "Match not found" });
     }
     res.status(200).json(match);
   } catch (error) {
@@ -26,7 +40,8 @@ export const getMatchById = async (req, res) => {
 
 // Create a new match
 export const createMatch = async (req, res) => {
-  const { local, visit, date, address, visitGoals, localGoals, type } = req.body;
+  const { local, visit, date, address, league, visitGoals, localGoals, type } =
+    req.body;
 
   try {
     const newMatch = new Match({
@@ -34,9 +49,10 @@ export const createMatch = async (req, res) => {
       visit,
       date,
       address,
+      league,
       visitGoals,
       localGoals,
-      type
+      type,
     });
 
     const savedMatch = await newMatch.save();
@@ -49,17 +65,18 @@ export const createMatch = async (req, res) => {
 // Update an existing match
 export const updateMatch = async (req, res) => {
   const { id } = req.params;
-  const { local, visit, date, address, visitGoals, localGoals, type } = req.body;
+  const { local, visit, date, address, league, visitGoals, localGoals, type } =
+    req.body;
 
   try {
     const updatedMatch = await Match.findByIdAndUpdate(
       id,
-      { local, visit, date, address, visitGoals, localGoals, type },
+      { local, visit, date, address, league, visitGoals, localGoals, type },
       { new: true, runValidators: true }
     );
 
     if (!updatedMatch) {
-      return res.status(404).json({ message: 'Match not found' });
+      return res.status(404).json({ message: "Match not found" });
     }
 
     res.status(200).json(updatedMatch);
@@ -76,10 +93,10 @@ export const deleteMatch = async (req, res) => {
     const deletedMatch = await Match.findByIdAndDelete(id);
 
     if (!deletedMatch) {
-      return res.status(404).json({ message: 'Match not found' });
+      return res.status(404).json({ message: "Match not found" });
     }
 
-    res.status(200).json({ message: 'Match deleted successfully' });
+    res.status(200).json({ message: "Match deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
