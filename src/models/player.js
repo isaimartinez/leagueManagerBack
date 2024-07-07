@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+const { Schema } = mongoose;
 
-const playerSchema = new mongoose.Schema({
+const playerSchema = new Schema({
   name: { type: String, required: true },
   team: { type: Schema.Types.ObjectId, ref: 'Team', required: true },
   goals: { type: Number, default: 0 },

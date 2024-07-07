@@ -1,9 +1,9 @@
-import Team from "../models/team";
+import Team from '../models/team';
 
 // Get all teams
 export const getTeams = async (req, res) => {
   try {
-    const teams = await Team.find().populate("group");
+    const teams = await Team.find().populate('activeLeagueId');
     res.status(200).json(teams);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -14,9 +14,9 @@ export const getTeams = async (req, res) => {
 export const getTeamById = async (req, res) => {
   const { id } = req.params;
   try {
-    const team = await Team.findById(id).populate("group");
+    const team = await Team.findById(id).populate('activeLeagueId');
     if (!team) {
-      return res.status(404).json({ message: "Team not found" });
+      return res.status(404).json({ message: 'Team not found' });
     }
     res.status(200).json(team);
   } catch (error) {
@@ -26,10 +26,15 @@ export const getTeamById = async (req, res) => {
 
 // Create a new team
 export const createTeam = async (req, res) => {
-  const { name, group } = req.body;
+  const { name, activeLeagueId, leagueStats } = req.body;
 
   try {
-    const newTeam = new Team({ name, group });
+    const newTeam = new Team({
+      name,
+      activeLeagueId,
+      leagueStats
+    });
+
     const savedTeam = await newTeam.save();
     res.status(201).json(savedTeam);
   } catch (error) {
@@ -40,17 +45,17 @@ export const createTeam = async (req, res) => {
 // Update an existing team
 export const updateTeam = async (req, res) => {
   const { id } = req.params;
-  const { name, group } = req.body;
+  const { name, activeLeagueId, leagueStats } = req.body;
 
   try {
     const updatedTeam = await Team.findByIdAndUpdate(
       id,
-      { name, group },
+      { name, activeLeagueId, leagueStats },
       { new: true, runValidators: true }
     );
 
     if (!updatedTeam) {
-      return res.status(404).json({ message: "Team not found" });
+      return res.status(404).json({ message: 'Team not found' });
     }
 
     res.status(200).json(updatedTeam);
@@ -67,10 +72,10 @@ export const deleteTeam = async (req, res) => {
     const deletedTeam = await Team.findByIdAndDelete(id);
 
     if (!deletedTeam) {
-      return res.status(404).json({ message: "Team not found" });
+      return res.status(404).json({ message: 'Team not found' });
     }
 
-    res.status(200).json({ message: "Team deleted successfully" });
+    res.status(200).json({ message: 'Team deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
