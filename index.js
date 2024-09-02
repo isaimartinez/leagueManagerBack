@@ -14,6 +14,15 @@ import userRoutes from "./src/routes/user.router.js";
 const app = express();
 dotenv.config();
 
+// // CORS configuration
+// const corsOptions = {
+//   origin: '*', // Allow all origins
+//   // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allow all methods
+//   allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
+// };
+
+// app.use(cors(corsOptions));
+
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
