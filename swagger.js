@@ -14,6 +14,16 @@ const options = {
         url: 'http://localhost:5001/api', // Make sure this matches your actual server URL
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    // Remove the global security requirement
   },
   apis: ['./src/routes/*.router.js', './src/models/*.js'],
 };
@@ -21,7 +31,11 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 const swaggerDocs = (app) => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    swaggerOptions: {
+      persistAuthorization: false,
+    },
+  }));
 };
 
 export default swaggerDocs;
