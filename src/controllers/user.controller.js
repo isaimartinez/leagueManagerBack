@@ -23,6 +23,7 @@ export const registerUser = async (req, res) => {
 
 // Login a user
 export const loginUser = async (req, res) => {
+  console.log("loginUser", req.body)
   const { username, password } = req.body;
 
   try {

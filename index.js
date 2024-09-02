@@ -35,7 +35,7 @@ app.use("/api", matchRoutes);
 app.use("/api", playerRoutes);
 app.use("/api", teamRoutes);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 mongoose
   .connect(process.env.CONNECTION_URL, {
     useNewUrlParser: true,
