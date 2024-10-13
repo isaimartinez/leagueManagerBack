@@ -175,6 +175,6 @@ router.put('/teams/:id', isAuthenticated, isAdmin, updateTeam);
  *       500:
  *         description: Server error
  */
-router.delete('/teams/:id', isAuthenticated, isAdmin, deleteTeam);
+router.delete('/teams/:id', deleteTeam);
 
 export default router;

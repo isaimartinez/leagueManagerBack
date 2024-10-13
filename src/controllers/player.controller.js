@@ -75,10 +75,6 @@ export const deletePlayer = async (req, res) => {
   try {
     const deletedPlayer = await Player.findByIdAndDelete(id);
 
-    if (!deletedPlayer) {
-      return res.status(404).json({ message: 'Player not found' });
-    }
-
     res.status(200).json({ message: 'Player deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });

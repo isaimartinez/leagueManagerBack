@@ -16,7 +16,10 @@ const leagueStatsSchema = new Schema({
 const teamSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   activeLeagueId: { type: Schema.Types.ObjectId, ref: 'League', required: true },
-  leagueStats: [leagueStatsSchema]
+  leagueStats: [leagueStatsSchema],
+  logo: { type: String },
+  foundationYear: { type: Number },
+  stadium: { type: String }
 }, { timestamps: true });
 
 export default mongoose.model('Team', teamSchema);
