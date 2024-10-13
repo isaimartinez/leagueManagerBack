@@ -86,6 +86,7 @@ export const getLeagueById = async (req, res) => {
 // Get league table
 export const getLeagueTable = async (req, res) => {
   const { id } = req.params;
+  console.log("getleagueTable", id);
 
   try {
     const league = await League.findById(id).populate('teams');

@@ -10,6 +10,7 @@ import matchRoutes from "./src/routes/match.router.js";
 import playerRoutes from "./src/routes/player.router.js";
 import teamRoutes from "./src/routes/team.router.js";
 import userRoutes from "./src/routes/user.router.js";
+// import publicRouter from './src/routes/public.router.js';
 
 const app = express();
 dotenv.config();
@@ -34,6 +35,9 @@ app.use("/api", leagueRoutes);
 app.use("/api", matchRoutes);
 app.use("/api", playerRoutes);
 app.use("/api", teamRoutes);
+
+// Public routes
+// app.use('/api/public', publicRouter);
 
 const PORT = process.env.PORT || 5001;
 mongoose
