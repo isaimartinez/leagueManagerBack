@@ -88,6 +88,7 @@ router.get('/leagues/:id/table', getLeagueTable);
  *               - name
  *               - startDate
  *               - endDate
+ *               - teamIds
  *             properties:
  *               name:
  *                 type: string
@@ -97,7 +98,7 @@ router.get('/leagues/:id/table', getLeagueTable);
  *               endDate:
  *                 type: string
  *                 format: date
- *               teams:
+ *               teamIds:
  *                 type: array
  *                 items:
  *                   type: string
@@ -142,7 +143,7 @@ router.post('/leagues', isAuthenticated, isAdmin, createLeague);
  *               endDate:
  *                 type: string
  *                 format: date
- *               teams:
+ *               teamIds:
  *                 type: array
  *                 items:
  *                   type: string

@@ -15,11 +15,10 @@ const leagueStatsSchema = new Schema({
 
 const teamSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
-  activeLeagueId: { type: Schema.Types.ObjectId, ref: 'League', required: true },
+  activeLeagueId: { type: Schema.Types.ObjectId, ref: 'League' }, // Now optional
   leagueStats: [leagueStatsSchema],
   logo: { type: String },
-  foundationYear: { type: Number },
-  stadium: { type: String }
+  location: { type: String }
 }, { timestamps: true });
 
 export default mongoose.model('Team', teamSchema);

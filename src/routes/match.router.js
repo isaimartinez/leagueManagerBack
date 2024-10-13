@@ -1,6 +1,6 @@
 import express from 'express';
 import { isAuthenticated, isAdmin } from '../middleware/auth.js';
-import { getMatches, getMatchById, createMatch, updateMatch, deleteMatch } from '../controllers/match.controller.js';
+import { getMatches, getMatchById, createMatch, updateMatch, deleteMatch, createMatches } from '../controllers/match.controller.js';
 
 const router = express.Router();
 
@@ -198,5 +198,52 @@ router.put('/matches/:id', isAuthenticated, isAdmin, updateMatch);
  *         description: Server error
  */
 router.delete('/matches/:id', isAuthenticated, isAdmin, deleteMatch);
+
+/**
+ * @swagger
+ * /matches/batch:
+ *   post:
+ *     summary: Create multiple matches
+ *     tags: [Matches]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: object
+ *               required:
+ *                 - local
+ *                 - visit
+ *                 - date
+ *                 - league
+ *                 - type
+ *               properties:
+ *                 local:
+ *                   type: string
+ *                 visit:
+ *                   type: string
+ *                 date:
+ *                   type: string
+ *                   format: date-time
+ *                 league:
+ *                   type: string
+ *                 type:
+ *                   type: string
+ *                   enum: [regular, eliminatoria]
+ *     responses:
+ *       201:
+ *         description: Matches created successfully
+ *       400:
+ *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.post('/matches/batch', isAuthenticated, isAdmin, createMatches);
 
 export default router;

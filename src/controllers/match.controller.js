@@ -40,19 +40,16 @@ export const getMatchById = async (req, res) => {
 
 // Create a new match
 export const createMatch = async (req, res) => {
-  const { local, visit, date, address, league, visitGoals, localGoals, type } =
-    req.body;
+  const { home, away, date, type, league } = req.body;
 
   try {
     const newMatch = new Match({
-      local,
-      visit,
+      local: home.value,
+      visit: away.value,
       date,
-      address,
-      league,
-      visitGoals,
-      localGoals,
       type,
+      league,
+      address: 'TBD', // We'll set a default value for now
     });
 
     const savedMatch = await newMatch.save();
@@ -97,6 +94,18 @@ export const deleteMatch = async (req, res) => {
     }
 
     res.status(200).json({ message: "Match deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Create multiple matches
+export const createMatches = async (req, res) => {
+  const matches = req.body;
+
+  try {
+    const savedMatches = await Match.insertMany(matches);
+    res.status(201).json(savedMatches);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

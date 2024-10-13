@@ -4,19 +4,45 @@ import Match from "../models/match.js";
 
 // Create a new league
 export const createLeague = async (req, res) => {
-  const { name, startDate, endDate, teams } = req.body;
+  const { name, startDate, endDate, teamIds, matches } = req.body;
 
   try {
+    const teams = await Team.find({ _id: { $in: teamIds } });
+    if (teams.length !== teamIds.length) {
+      return res.status(400).json({ message: "One or more team IDs are invalid" });
+    }
+
     const newLeague = new League({
       name,
       startDate,
       endDate,
-      teams
+      teams: teamIds,
     });
 
     const savedLeague = await newLeague.save();
-    res.status(201).json(savedLeague);
+
+    // Create matches
+    const createdMatches = await Match.insertMany(
+      matches.map(match => ({
+        local: match.home?.value || null,
+        visit: match.away?.value || null,
+        date: match.date,
+        type: match.type,
+        league: savedLeague._id,
+        address: 'TBD', // Default value
+        name: match.name // For draft matches
+      }))
+    );
+
+    // Update teams with the new league
+    await Team.updateMany(
+      { _id: { $in: teamIds } },
+      { $set: { activeLeagueId: savedLeague._id } }
+    );
+
+    res.status(201).json({ league: savedLeague, matches: createdMatches });
   } catch (error) {
+    console.error("Error creating league:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -24,24 +50,97 @@ export const createLeague = async (req, res) => {
 // Update an existing league
 export const updateLeague = async (req, res) => {
   const { id } = req.params;
-  const { name, startDate, endDate, teams } = req.body;
+  const { name, startDate, endDate, teamIds } = req.body;
 
   try {
-    const updatedLeague = await League.findByIdAndUpdate(
-      id,
-      { name, startDate, endDate, teams },
-      { new: true, runValidators: true }
-    ).populate('teams');
-
-    if (!updatedLeague) {
+    const league = await League.findById(id);
+    if (!league) {
       return res.status(404).json({ message: "League not found" });
     }
+
+    const teams = await Team.find({ _id: { $in: teamIds } });
+    if (teams.length !== teamIds.length) {
+      return res.status(400).json({ message: "One or more team IDs are invalid" });
+    }
+
+    const regularSeasonMatches = generateRegularSeasonMatches(teams, new Date(startDate), new Date(endDate));
+    const eliminationDates = generateEliminationDates(new Date(endDate), teams.length);
+
+    // Remove this league from previously associated teams
+    await Team.updateMany(
+      { activeLeagueId: id },
+      { $unset: { activeLeagueId: "" } }
+    );
+
+    // Update teams with the new league
+    await Team.updateMany(
+      { _id: { $in: teamIds } },
+      { $set: { activeLeagueId: id } }
+    );
+
+    const updatedLeague = await League.findByIdAndUpdate(
+      id,
+      { 
+        name, 
+        startDate, 
+        endDate, 
+        teams: teamIds,
+        regularSeasonMatches,
+        eliminationDates
+      },
+      { new: true, runValidators: true }
+    ).populate('teams');
 
     res.status(200).json(updatedLeague);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Helper function to generate regular season matches
+function generateRegularSeasonMatches(teams, startDate, endDate) {
+  const matches = [];
+  const numTeams = teams.length;
+  const numRounds = numTeams - 1;
+  const matchesPerRound = numTeams / 2;
+
+  let currentDate = new Date(startDate);
+  const daysBetweenMatches = Math.floor((endDate - startDate) / (numRounds * 2)) / (1000 * 60 * 60 * 24);
+
+  for (let round = 0; round < numRounds * 2; round++) {
+    for (let match = 0; match < matchesPerRound; match++) {
+      const home = (round + match) % (numTeams - 1);
+      const away = (numTeams - 1 - match + round) % (numTeams - 1);
+
+      // For the second half of the season, swap home and away
+      const homeTeam = round < numRounds ? teams[home] : teams[away];
+      const awayTeam = round < numRounds ? teams[away] : teams[home];
+
+      matches.push({
+        home: homeTeam._id,
+        away: awayTeam._id,
+        date: new Date(currentDate)
+      });
+    }
+    currentDate.setDate(currentDate.getDate() + daysBetweenMatches);
+  }
+
+  return matches;
+}
+
+// Helper function to generate elimination dates
+function generateEliminationDates(endDate, numTeams) {
+  const eliminationDates = [];
+  const numRounds = Math.log2(numTeams);
+  let currentDate = new Date(endDate);
+
+  for (let i = 0; i < numRounds; i++) {
+    eliminationDates.unshift(new Date(currentDate));
+    currentDate.setDate(currentDate.getDate() - 7); // One week between rounds
+  }
+
+  return eliminationDates;
+}
 
 // Delete a league
 export const deleteLeague = async (req, res) => {
@@ -50,9 +149,9 @@ export const deleteLeague = async (req, res) => {
   try {
     const deletedLeague = await League.findByIdAndDelete(id);
 
-    if (!deletedLeague) {
-      return res.status(404).json({ message: "League not found" });
-    }
+    // if (!deletedLeague) {
+    //   return res.status(404).json({ message: "League not found" });
+    // }
 
     res.status(200).json({ message: "League deleted successfully" });
   } catch (error) {

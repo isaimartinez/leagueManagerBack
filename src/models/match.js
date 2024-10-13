@@ -7,14 +7,15 @@ const goalSchema = new Schema({
 }, { _id: false });
 
 const matchSchema = new Schema({
-  local: { type: Schema.Types.ObjectId, ref: 'Team', required: true },
-  visit: { type: Schema.Types.ObjectId, ref: 'Team', required: true },
+  local: { type: Schema.Types.ObjectId, ref: 'Team' },
+  visit: { type: Schema.Types.ObjectId, ref: 'Team' },
   date: { type: Date, required: true },
   address: { type: String, required: true },
   league: { type: Schema.Types.ObjectId, ref: 'League', required: true },
   visitGoals: [goalSchema],
   localGoals: [goalSchema],
-  type: { type: String, enum: ['regular', 'eliminatoria'], required: true }
+  type: { type: String, enum: ['regular', 'draft_semifinal', 'draft_final'], required: true },
+  name: { type: String } // For draft matches
 }, { timestamps: true });
 
 export default mongoose.model('Match', matchSchema);

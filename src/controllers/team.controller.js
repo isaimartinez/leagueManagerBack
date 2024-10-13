@@ -29,28 +29,32 @@ export const getTeamById = async (req, res) => {
 
 // Create a new team
 export const createTeam = async (req, res) => {
-  const { name, activeLeagueId, logo, foundationYear, stadium } = req.body;
+  const { name, activeLeagueId, logo, location } = req.body;
 
   try {
-    const league = await League.findById(activeLeagueId);
-    if (!league) {
-      return res.status(404).json({ message: 'League not found' });
+    let leagueStats = [];
+    if (activeLeagueId) {
+      const league = await League.findById(activeLeagueId);
+      if (!league) {
+        return res.status(404).json({ message: 'League not found' });
+      }
+      leagueStats = [{ leagueId: activeLeagueId }];
     }
 
     const newTeam = new Team({
       name,
       activeLeagueId,
-      logo,  // This will now be a base64 string
-      foundationYear,
-      stadium,
-      leagueStats: [{ leagueId: activeLeagueId }]
+      logo,
+      location,
+      leagueStats
     });
 
     const savedTeam = await newTeam.save();
     
-    // Add the team to the league
-    league.teams.push(savedTeam._id);
-    await league.save();
+    if (activeLeagueId) {
+      // Add the team to the league
+      await League.findByIdAndUpdate(activeLeagueId, { $push: { teams: savedTeam._id } });
+    }
 
     res.status(201).json(savedTeam);
   } catch (error) {
